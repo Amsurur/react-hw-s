@@ -10,7 +10,7 @@ export interface IData{
 export interface TodoState {
   data: IData[],
   name:string,
-  surname:string
+  job:string
 }
 
 const initialState: TodoState = {
@@ -22,7 +22,7 @@ const initialState: TodoState = {
     }
   ],
     name:"",
-  surname:""
+  job:""
 }
 
 export const TodoSlice = createSlice({
@@ -35,11 +35,25 @@ export const TodoSlice = createSlice({
   deleteUser:(state,{payload})=>{
 state.data = state.data.filter((e)=>e.id!= payload)
 
+  },
+  addUser :(state)=>{
+state.data.push({id:Date.now(),name:state.name,job:state.job})
+  }
+  ,
+  editUser :(state,{payload})=>{
+    state.data = state.data.map((e)=>{
+      if(e.id ==payload){
+        e ={id:payload,name:state.name,job:state.job}
+      }
+      return e
+    })
+    state.name=""
+    state.job=""
   }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const {  deleteUser,setName} = TodoSlice.actions
+export const {  deleteUser,setName,addUser,editUser} = TodoSlice.actions
 
 export default TodoSlice.reducer
