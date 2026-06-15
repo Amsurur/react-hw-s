@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import axios from 'axios'
 
 export interface IData{
   id:number,
@@ -9,51 +10,72 @@ export interface IData{
 
 export interface TodoState {
   data: IData[],
-  name:string,
-  job:string
+  isLoading:boolean
+  isError:boolean
+
 }
 
 const initialState: TodoState = {
-  data: [
-    {
-      id:1,
-      name:"Sadi",
-      job:"BOT"
-    }
-  ],
-    name:"",
-  job:""
+  data: [],
+  isLoading:false,
+  isError:false
+
 }
+const api ="https://to-dos-api.softclub.tj/api/to-dos"
+
+ export const getData = createAsyncThunk("counter/getData",async ()=>{
+  try {
+    const {data} = await axios.get(api)
+    return data.data
+  } catch (error) {
+    console.error(error);
+    
+  }
+ })
+ export const deleteData = createAsyncThunk("counter/deleteData",async (id,{dispatch})=>{
+  try {
+    const {data} = await axios.delete(`${api}?id=${id}`)
+    dispatch(getData())
+    return data.errors
+  } catch (error) {
+    console.error(error);
+    
+  }
+ })
+
+
 
 export const TodoSlice = createSlice({
   name: 'counter',
   initialState,
   reducers: {
- setName:(state,{payload})=>{
-  state[payload.key] = payload.value
- },
-  deleteUser:(state,{payload})=>{
-state.data = state.data.filter((e)=>e.id!= payload)
 
   },
-  addUser :(state)=>{
-state.data.push({id:Date.now(),name:state.name,job:state.job})
+  extraReducers:(builder) =>{
+ builder.addCase(getData.pending,(state,{payload})=>{
+state.isLoading = true
+state.isError=false
+ })
+ builder.addCase(getData.fulfilled,(state,{payload})=>{
+  state.isLoading = false
+state.isError=false
+state.data = payload
+   })
+   builder.addCase(getData.rejected,(state,{payload})=>{
+    state.isLoading = false
+state.isError=true
+
+     })
+     builder.addCase(deleteData.fulfilled,(state,{payload})=>{
+    
+    state.isError = payload
+    
+       })
+       
   }
-  ,
-  editUser :(state,{payload})=>{
-    state.data = state.data.map((e)=>{
-      if(e.id ==payload){
-        e ={id:payload,name:state.name,job:state.job}
-      }
-      return e
-    })
-    state.name=""
-    state.job=""
-  }
-  },
 })
 
 // Action creators are generated for each case reducer function
-export const {  deleteUser,setName,addUser,editUser} = TodoSlice.actions
+export const { } = TodoSlice.actions
 
 export default TodoSlice.reducer
