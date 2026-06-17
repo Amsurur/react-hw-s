@@ -1,14 +1,25 @@
+import axios from "axios";
 import { atom } from "jotai";
-export const dataAtom = atom([{
-    id:1,
-    name:"Idris",
-    job:"BOT"
-}])
-export const deleteItemDataAtom = atom(null,(get,set,id)=>{
-set(dataAtom,get(dataAtom).filter((e)=>e.id != id))
+import { Api } from "./count";
+import { atomWithRefresh, loadable } from "jotai/utils";
+
+export const getDataAtom = atomWithRefresh(async (get)=>{
+  try {
+    const {data} = await axios.get(Api)
+    return data.data
+  } catch (error) {
+    console.error(error);
+    
+  }
 })
-export const countAtom = atom(1)
-export const doubleCountAtom = atom((get) => {
-   const value = get(countAtom)
-    return value*2
-  })
+
+export const deleteDataAtom = atom(null,async (get,set,id)=>{
+  try {
+     await axios.delete(`${Api}?id=${id}`)
+     set(getDataAtom)
+  } catch (error) {
+    console.error(error);
+    
+  }
+})
+export const getLoadableAtom = loadable(getDataAtom)

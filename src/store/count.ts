@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { create } from 'zustand'
-const Api = "https://to-dos-api.softclub.tj/api/to-dos"
+export const Api = "https://to-dos-api.softclub.tj/api/to-dos"
 export const useData = create((set,get) => ({
   data:[],
   getData: async ()=> {

@@ -1,24 +1,39 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { deleteData, getData } from './reducer/todo.slice'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 const Home = () => {
-const dispatch = useDispatch()
-const {data} = useSelector((store)=>store.todo)
-console.log(data);
+  const [data,setData] = useState([])
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
+  
+  const onSubmit =(value)=>{
+    setData((prev)=>[...prev,value])
 
-  useEffect(()=>{
-dispatch(getData())
-// getData()
-  },[])
+  }
   return (
     <div>
+       <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register("name")} />
+
+      <input  {...register("email", { required: true })} />
+      {errors.email && <span>This field is required</span>}
+
+      <input type="submit" />
+    </form>
+
+    <div>
       {data.map((e)=>{
-        return <div>
-          <h1>{e.name}</h1>
-          <button onClick={()=>dispatch(deleteData(e.id))}>delete</button>
-        </div>
+        return (
+          <div>
+            <h1>{e.name}</h1>
+          </div>
+        )
       })}
+    </div>
     </div>
   )
 }
